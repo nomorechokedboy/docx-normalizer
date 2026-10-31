@@ -1,6 +1,7 @@
-import { useEffect, useRef, useState } from "react";
+import { DocxEditor } from "@docx-editor.dev/react";
+import "@docx-editor.dev/core/styles/editor.css";
 import JSZip from "jszip";
-import { renderAsync } from "docx-preview";
+import { useEffect, useState } from "react";
 
 type Margins = {
   top: number;
@@ -143,33 +144,29 @@ async function reconstructWithMargins(file: File, margins: Margins) {
 }
 
 function Preview({ blob, label }: { blob: Blob | null; label: string }) {
-  const host = useRef<HTMLDivElement>(null);
+  const [bytes, setBytes] = useState<Uint8Array | null>(null);
   const [error, setError] = useState("");
 
+  // Đọc Blob thành byte để truyền cho docx-editor. Mỗi lần blob đổi,
+  // một Uint8Array mới được tạo nên trình xem sẽ tự nạp lại tài liệu.
   useEffect(() => {
     let active = true;
 
-    if (!host.current || !blob) return;
-
-    host.current.innerHTML = "";
     setError("");
+
+    if (!blob) {
+      setBytes(null);
+      return;
+    }
 
     blob
       .arrayBuffer()
-      .then((buffer) =>
-        renderAsync(buffer, host.current!, undefined, {
-          className: "docx-preview",
-          inWrapper: true,
-          ignoreWidth: false,
-          ignoreHeight: false,
-          breakPages: true,
-          renderHeaders: true,
-          renderFooters: true,
-          renderFootnotes: true,
-        }),
-      )
+      .then((buffer) => {
+        if (active) setBytes(new Uint8Array(buffer));
+      })
       .catch((err) => {
         if (active) {
+          setBytes(null);
           setError(
             err instanceof Error
               ? err.message
@@ -180,10 +177,6 @@ function Preview({ blob, label }: { blob: Blob | null; label: string }) {
 
     return () => {
       active = false;
-
-      if (host.current) {
-        host.current.innerHTML = "";
-      }
     };
   }, [blob]);
 
@@ -215,22 +208,17 @@ function Preview({ blob, label }: { blob: Blob | null; label: string }) {
         </div>
       )}
 
-      <div
-        ref={host}
-        className="
-          max-h-[900px] min-h-[300px] overflow-auto p-[13px]
-          [&:empty]:hidden
-          [&_.docx-wrapper]:!bg-transparent
-          [&_.docx-wrapper]:!p-0
-          [&_.docx-wrapper>section]:!mx-auto
-          [&_.docx-wrapper>section]:!mb-[12px]
-          [&_.docx-wrapper>section]:!max-w-full
-          [&_.docx-wrapper>section]:!shadow-[0_2px_8px_#1c29400f]
-          [&_.docx]:!max-w-full
-          max-[1050px]:max-h-[600px]
-          max-[720px]:max-h-[650px]
-        "
-      />
+      {bytes && (
+        // docx-editor cần một vùng chứa có chiều cao xác định để cuộn trang.
+        <div className="h-[600px] min-h-[300px] overflow-hidden max-[1050px]:h-[560px] max-[720px]:h-[500px]">
+          <DocxEditor
+            document={bytes}
+            mode="view"
+            chrome={false}
+            openFailure={false}
+          />
+        </div>
+      )}
     </section>
   );
 }

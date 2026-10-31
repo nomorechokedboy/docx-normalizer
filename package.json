@@ -10,7 +10,8 @@
     "prepare": "husky"
   },
   "dependencies": {
-    "docx-preview": "^0.3.6",
+    "@docx-editor.dev/core": "^2.33.0",
+    "@docx-editor.dev/react": "^2.33.0",
     "jszip": "^3.10.1",
     "react": "^19.1.0",
     "react-dom": "^19.1.0"
