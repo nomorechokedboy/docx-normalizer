@@ -143,7 +143,15 @@ async function reconstructWithMargins(file: File, margins: Margins) {
   };
 }
 
-function Preview({ blob, label }: { blob: Blob | null; label: string }) {
+function Preview({
+  blob,
+  label,
+  title,
+}: {
+  blob: Blob | null;
+  label: string;
+  title?: string;
+}) {
   const [bytes, setBytes] = useState<Uint8Array | null>(null);
   const [error, setError] = useState("");
 
@@ -214,8 +222,11 @@ function Preview({ blob, label }: { blob: Blob | null; label: string }) {
           <DocxEditor
             document={bytes}
             mode="view"
-            chrome={false}
             openFailure={false}
+            menu={false}
+            rulers={false}
+            navigation={false}
+            title={title}
           />
         </div>
       )}
@@ -684,9 +695,17 @@ export default function App() {
 
             {/* Hai bản xem trước */}
             <div className="grid grid-cols-2 items-start gap-3 max-[1050px]:grid-cols-1 max-[720px]:grid-cols-1">
-              <Preview blob={originalBlob} label="Tài liệu gốc" />
+              <Preview
+                blob={originalBlob}
+                label="Tài liệu gốc"
+                title={file?.name}
+              />
 
-              <Preview blob={outputBlob} label="Tài liệu sau chuẩn hóa" />
+              <Preview
+                blob={outputBlob}
+                label="Tài liệu sau chuẩn hóa"
+                title={`${file?.name.replace(/\.docx$/i, "")}-da-chuan-hoa.docx`}
+              />
             </div>
 
             {/* Lưu ý */}
