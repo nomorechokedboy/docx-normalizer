@@ -2,3 +2,6 @@
 .env*
 **/tests
 **/snapshots
+**/build
+**/dist
+**/target
