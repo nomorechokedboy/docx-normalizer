@@ -27,23 +27,3 @@ body {
     transform: rotate(360deg);
   }
 }
-
-/* Third-party docx-preview styles */
-.preview-host:empty {
-  display: none;
-}
-
-.preview-host .docx-wrapper {
-  background: transparent !important;
-  padding: 0 !important;
-}
-
-.preview-host .docx-wrapper > section {
-  margin: 0 auto 12px !important;
-  box-shadow: 0 2px 8px #1c29400f !important;
-  max-width: 100% !important;
-}
-
-.preview-host .docx {
-  max-width: 100% !important;
-}
